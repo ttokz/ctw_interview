@@ -42,7 +42,7 @@ def groq_text_models(documents, question):
         stream=False,
     )
     # Print the completion returned by the LLM.
-    print(chat_completion.choices[0].message.content)
+    return chat_completion.choices[0].message.content
 
 
 def groq_vision_models(encoded_string, 

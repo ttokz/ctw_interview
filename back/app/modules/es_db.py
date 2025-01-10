@@ -41,13 +41,13 @@ class ESearchClient:
                     'must': {
                         'multi_match': {
                             'query': text,
-                            'fields': ['review_text'],
+                            'fields': ['doc_text'],
                         }
                     }
                 }
             },
             knn= {
-                "field": "review_vector",
+                "field": "text_vector",
                 "query_vector": embedding,
                 "k": top_k,
             }

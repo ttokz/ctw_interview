@@ -28,11 +28,13 @@ WORK_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @app.post("/query/")
 async def query(query: Query):
-    answer = es_client.search(text=query.text)
-    final_ans = answer["hits"]["hits"]
-    print()
+    resp = es_client.search(text=query.text, embedding=random_emb(query.text)[0])
+    
+    context = "\n".join([f'{chunk.get("_source").get("doc_text")} from {chunk.get("_source").get("doc_name").split("/")[-1]}' for chunk in resp["hits"]["hits"]])
+    answer = groq_text_models(context, query.text)
+    
     # groq_text_models()
-    return {"answer": len(final_ans)}
+    return {"answer": answer}
 
 
 @app.post("/uploadfile/")
