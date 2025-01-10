@@ -1,6 +1,6 @@
 # ctw_interview
 
-![Systen Design](./pdf_chatbot_design.png)
+![Systen Design](./pdf_chatbot_design_2.png)
 
 This is first system design of PDF chatbot
 
