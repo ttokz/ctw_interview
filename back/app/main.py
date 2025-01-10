@@ -10,7 +10,7 @@ from fastapi import FastAPI, File, UploadFile
 from modules.es_db import ESearchClient
 from modules.chunking import RCTsplitter
 from modules.embedding import random_emb
-from modules.image2text import groq_text_models
+from modules.image2text import groq_text_models, groq_vision_models
 from pydantic import BaseModel
 
 
@@ -71,9 +71,6 @@ async def create_upload_file(file: UploadFile):
                 "doc_text": chunk_t
             } for chunk_t, chunk_embed in zip(chunked_texts, text_embeddings)]
             
-            # data ingestion
-            es_client.bulk(data_to_ingest)
-            
             if image_list:
                 print(f"[+] Found a total of {len(image_list)} images on page {page_index}")
 
@@ -87,10 +84,22 @@ async def create_upload_file(file: UploadFile):
                 
                 # image = Image.open(io.BytesIO(image_bytes))
 
-                encoded_string = base64.b64encode(image_bytes).decode('utf-8')
+                encoded_string = base64.b64encode(image_bytes)
                 
                 # image to text
+                image_explanation = groq_vision_models(encoded_string)
+                print(image_explanation)
                 # embedding
-                # db ingestion
-                
+                image_embed = random_emb(image_explanation)[0]
+
+                data_to_ingest.append({
+                    "doc_name": file.filename,
+                    "doc_page": str(page_index),
+                    "text_vector": image_embed,
+                    "doc_text": image_explanation
+                })
+
+            # data ingestion
+            es_client.bulk(data_to_ingest)
+              
     return {"filename": file.filename}
