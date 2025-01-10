@@ -45,17 +45,14 @@ def upload_pdf(files):
 
 # Function for chatbot to answer questions based on PDF content
 def chatbot_response(history, query):
-    global pdf_content
-    if not pdf_content:
-        return history + [(query, "Please upload a PDF file first.")]
     
-    # Simple logic: Search for the query in the PDF content
-    if query.lower() in pdf_content.lower():
-        response = f"Your query matches the following:\n\n{pdf_content[:300]}..."
-    else:
-        response = "Sorry, I couldn't find anything relevant in the uploaded PDF."
+    data = {
+        "text": query
+    }
+    server_url = "http://localhost:8000/query/"  # Replace with the actual server endpoint
+    response = requests.post(server_url, json=data)
     
-    return history + [(query, response)]
+    return history + [(query, response.json().get('answer'))]
 
 # Gradio interface
 with gr.Blocks() as demo:
